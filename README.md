@@ -18,10 +18,15 @@ An exploratory analysis of the [NOAA NCEI Global Marine Microplastics Harmonized
 | `concentration_by_ocean.csv` | Concentration summary by ocean |
 | `region_hotspots.csv` | Top regions by median concentration (n ≥ 100) |
 | `chart1`–`chart4` (`.png`) | Charts: sampling effort, concentration trend, records by ocean, record mix 2015–2026 |
+| `01_explore.R` | Dataset exploration: units, mediums, and the ocean × sampling-method breakdown behind the ocean-water subset |
+| `02_distance.R` | Great-circle distance from every ocean-water record to the nearest coastline vertex (~78k-point `maps` coastline); writes `ocean_water.rds` |
+| `03_analysis.R` | Post-2 analysis: binned decay curves by distance from shore, subtropical-gyre in/out comparison with Mann-Whitney tests, hemisphere-adjusted seasonality; regenerates `fig1_decay.png`, `fig2_gyres.png`, `fig3_season.png` |
 
 ## How to run
 
 Open the folder in RStudio, set the working directory to it (Session → Set Working Directory), and run `mp_analysis.R` top to bottom. The script uses base R only and rewrites the three summary CSVs in the same folder.
+
+For the post-2 analysis, run `01_explore.R`, then `02_distance.R` (takes a couple of minutes: it computes 17k × 78k great-circle distances in chunks), then `03_analysis.R`. The post-2 scripts need the `ggplot2` and `maps` packages (`03_analysis.R` also uses `gridExtra`, installing it automatically if missing), and they expect `microplastics_ncei_2026.csv` in the same folder.
 
 ## Key findings
 
@@ -30,6 +35,15 @@ Open the folder in RStudio, set the working directory to it (Session → Set Wor
 - **A data-justice gap:** 94% of records sit in the Northern Hemisphere; the Southern Hemisphere's share peaked at 13% in the 2010s and fell back below 2% in the 2020s. The Indian Ocean has 777 records and the entire Southern Ocean has 27.
 - **Records are not the same as pollution:** after 2018 the database is dominated by a citizen-science nurdle survey program, so record counts after that year measure survey activity, not ocean conditions.
 - This is **presence-only data**: an unrecorded sample does not mean a clean sea.
+
+## Post-2 findings: distance, gyres, seasons
+
+Analysis of the 16,988 ocean-water records (the only subset with a common volumetric unit):
+
+- **The decay curve from shore is U-shaped, not exponential.** Median concentration falls ~10× over the first 100 km (0.042 → 0.0043 pieces/m³), then climbs again far offshore (0.036 beyond 1,600 km) because the subtropical gyres accumulate floating plastic. The Arctic is the outlier: concentration *increases* with distance from shore, consistent with sea ice acting as a microplastic sink.
+- **Three of five subtropical gyres measure genuinely higher** than the rest of the ocean (South Atlantic 15.9×, Indian 12.2× on only 19 records, North Atlantic 1.9×), but the North Pacific garbage-patch region measures 0.6× *lower* per cubic meter — the patch is a surface-area phenomenon (pieces/km²), not a volumetric one.
+- **The famous gyres are oversampled:** the North Pacific disk holds 18.5% of all water samples against a 5.4% fair share of ocean area; the South Atlantic, which measures highest, holds 0.9%.
+- **Sampling effort is seasonally balanced** (4,161 summer vs 4,154 winter records, hemisphere-adjusted), but measured concentration is 8.3× higher in summer — a signal that tracks where cruises go, not when plastic accumulates.
 
 ## Caveats
 
